@@ -4,6 +4,7 @@ import com.example.springredditclone.dto.SubredditDto;
 import com.example.springredditclone.exceptions.SubredditNotFoundException;
 import com.example.springredditclone.mapper.SubredditMapper;
 import com.example.springredditclone.model.Subreddit;
+import com.example.springredditclone.model.User;
 import com.example.springredditclone.repository.SubredditRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static java.time.Instant.now;
 import static java.util.stream.Collectors.toList;
 
 @Service
@@ -21,6 +21,7 @@ import static java.util.stream.Collectors.toList;
 public class SubredditService {
     private final SubredditRepository subredditRepository;
     private final SubredditMapper subredditMapper;
+    private final AuthService authService;
 
     @Transactional(readOnly = true)
     public List<SubredditDto> getAll() {
@@ -39,7 +40,8 @@ public class SubredditService {
 
     @Transactional
     public SubredditDto save(SubredditDto subredditDto) {
-        Subreddit subreddit = subredditRepository.save(subredditMapper.mapDtoToSubreddit(subredditDto));
+        User user = authService.getCurrentUser();
+        Subreddit subreddit = subredditRepository.save(subredditMapper.mapDtoToSubreddit(subredditDto, user));
         subredditDto.setId(subreddit.getId());
         return subredditDto;
     }
